@@ -1,0 +1,268 @@
+\setcounter{chapter}{7}
+\section{Migrado de cap8\_benchmark\_morpheus\_sunny\_rocket.tex}
+
+Neste capítulo, são apresentados os experimentos realizados para avaliar o desempenho dos algoritmos Morpheus, Sunny e Rocket na geração automática de grades horárias acadêmicas do sistema IGRIS. O objetivo do benchmark é comparar o comportamento das três implementações diante do mesmo conjunto de testes, considerando métricas como tempo de execução, consumo de memória, número de gerações executadas, ocorrência de parada antecipada, score final e erro médio.
+
+A comparação entre os algoritmos é necessária porque todos têm a mesma finalidade dentro do sistema: produzir uma grade horária acadêmica a partir das informações disponíveis sobre turmas, disciplinas, professores e horários. Entretanto, apesar de resolverem o mesmo problema, as implementações possuem características diferentes em relação à arquitetura, à organização interna dos dados, ao tratamento de conflitos, ao critério de parada e ao consumo de recursos computacionais.
+
+Foram analisados dois cenários de execução, identificados nos relatórios como i3 e i5/full. Em ambos os casos, os algoritmos foram submetidos a execuções repetidas com variações de parâmetros evolutivos. Dessa forma, a análise não se limita a uma única execução isolada, mas considera o comportamento geral das implementações ao longo de diferentes configurações do algoritmo genético.
+
+A comparação realizada neste capítulo não deve ser entendida como uma avaliação genérica entre linguagens de programação, arquiteturas ou tecnologias. O foco está nas três implementações concretas utilizadas no IGRIS. Portanto, os resultados discutidos dizem respeito ao comportamento observado no protocolo de benchmark executado, com os parâmetros, dados e ambiente disponíveis nos relatórios analisados.
+
+\section{Sobre o Benchmark}
+\label{sec:sobre-o-benchmark}
+
+Para avaliar os algoritmos Morpheus, Sunny e Rocket, foi utilizado um benchmark progressivo composto por dois cenários principais. O primeiro cenário é identificado como i3, enquanto o segundo é identificado como i5/full. Em cada cenário, os três algoritmos foram executados repetidamente, permitindo observar diferenças de desempenho, estabilidade e consumo de recursos.
+
+Os cenários i3 e i5/full representam presets distintos de capacidade computacional. O cenário i3 foi utilizado como ambiente de capacidade reduzida, simulando uma configuração com menor disponibilidade de processamento. Nos scripts de execução analisados, esse preset foi operacionalizado por meio de limitação de CPU nos containers, com o comando \texttt{docker update --cpus 4} aplicado aos serviços avaliados antes da execução do benchmark. O cenário i5/full, por sua vez, foi utilizado como ambiente de capacidade total, no qual os containers foram executados sem limite explícito de CPU, indicado nos scripts pela restauração do parâmetro para \texttt{--cpus 0}. Assim, a comparação entre i3 e i5/full também permite observar como cada algoritmo responde à ampliação de capacidade de processamento disponível.
+
+A escolha desses dois cenários teve finalidade metodológica específica. O cenário i3 foi utilizado para testar o comportamento dos algoritmos sob restrição de processamento, isto é, em uma condição mais próxima de implantação econômica ou de infraestrutura compartilhada. O cenário i5/full foi utilizado como referência de capacidade ampliada, permitindo observar se a remoção do limite de CPU reduziria proporcionalmente a latência ou se os algoritmos permaneceriam limitados por outros fatores, como custo da função \textit{fitness}, estruturas de dados, sincronização, alocação de memória ou critérios de parada. A hipótese técnica subjacente era que implementações mais eficientes deveriam manter estabilidade no ambiente restrito e, ao mesmo tempo, converter parte da capacidade adicional do ambiente i5/full em menor tempo de resposta. Dessa forma, a comparação não mede apenas qual algoritmo é mais rápido, mas também a sensibilidade de cada implementação à disponibilidade de recursos computacionais.
+
+Quanto à memória RAM, os relatórios registram o consumo por meio da telemetria do \texttt{docker stats} durante cada requisição. Os artefatos de execução não apresentam um limite explícito de memória por container, como \texttt{docker update --memory}, \texttt{mem\_limit} ou configuração equivalente no \texttt{docker-compose}. Dessa forma, a RAM deve ser interpretada como capacidade disponível do ambiente monitorado, e não como cota fixa documentada por serviço. Pelos percentuais de memória reportados nos CSVs, a capacidade total observada pelo Docker ficou próxima de 8 GB nos testes analisados. Portanto, o preset i3 deve ser descrito como cenário de processamento reduzido, com 4 CPUs disponíveis para os containers avaliados, enquanto o preset i5/full deve ser descrito como cenário de processamento total, sem limitação explícita de CPU e com a memória disponível do ambiente Docker monitorado.
+
+O volume de 9.000 requisições por algoritmo em cada cenário foi adotado para reduzir a influência de execuções isoladas e permitir uma leitura mais estável das métricas agregadas. Em algoritmos genéticos, a presença de componentes estocásticos pode produzir variações entre execuções mesmo quando o \textit{payload} e os parâmetros permanecem equivalentes. Um conjunto de 9.000 amostras aumenta a robustez descritiva da média e, principalmente, torna mais informativo o percentil 95: nesse caso, a cauda superior da distribuição ainda contém aproximadamente 450 observações, evitando que o p95 seja definido por poucos casos extremos. Além disso, o volume escolhido preserva viabilidade prática de execução, pois permite repetir o experimento para três algoritmos, dois cenários e múltiplas configurações paramétricas sem tornar o tempo total do benchmark incompatível com a coleta operacional.
+
+Os parâmetros avaliados no benchmark foram: taxa de \textit{crossover}, tamanho da população, número de gerações, taxa de elitismo, pontuação base, penalidade de conflito, bônus de diversidade, tamanho do torneio e taxa de mutação. Esses parâmetros foram escolhidos porque influenciam diretamente o comportamento de um algoritmo genético, afetando a forma como a população evolui, como os indivíduos são selecionados, como novas soluções são geradas e como conflitos são penalizados.
+
+As métricas utilizadas na avaliação foram: latência média, percentil 95 da latência, uso médio de CPU, pico de CPU, uso médio de memória RAM, pico de memória RAM, custo composto tempo \(\times\) memória, número médio de gerações executadas, melhor geração média, ocorrência de parada antecipada, score final e erro médio. A partir dessas métricas, torna-se possível analisar tanto o custo operacional dos algoritmos quanto a qualidade relativa das soluções geradas.
+
+A latência média indica o tempo médio de resposta das execuções. O percentil 95, identificado como p95, representa o tempo abaixo do qual se encontram 95\% das execuções, sendo útil para observar o comportamento das execuções mais lentas. O uso de RAM e CPU permite avaliar o custo computacional das implementações. Já as métricas de gerações, score, erro médio e parada antecipada permitem analisar o comportamento evolutivo dos algoritmos.
+
+Formalmente, para um conjunto de \(n\) execuções válidas de um algoritmo em determinado cenário, seja \(L_i\) a latência da \(i\)-ésima requisição, medida em milissegundos. A latência média é dada por:
+
+\begin{equation}
+L_{\text{média}} = \frac{1}{n}\sum_{i=1}^{n} L_i.
+\end{equation}
+
+Para o cálculo do percentil 95, as latências são ordenadas de forma crescente, produzindo a sequência \(L_{(1)} \leq L_{(2)} \leq \cdots \leq L_{(n)}\). O p95 é então aproximado pelo valor na posição \(k = \lceil 0{,}95n \rceil\), isto é:
+
+\begin{equation}
+p95 = L_{(k)}, \quad \text{com } k = \lceil 0{,}95n \rceil.
+\end{equation}
+
+Assim, quando \(n = 9.000\), o p95 corresponde aproximadamente à 8.550ª observação ordenada, indicando o limite abaixo do qual se situam 95\% das requisições medidas. Essa métrica complementa a média porque reduz o risco de interpretação baseada apenas no comportamento central da distribuição, evidenciando também a experiência das execuções mais lentas.
+
+O uso médio de memória RAM segue a mesma lógica de agregação. Seja \(M_i\) o consumo de memória observado durante a \(i\)-ésima execução, em megabytes. A RAM média é calculada por:
+
+\begin{equation}
+\text{RAM}_{\text{média}} = \frac{1}{n}\sum_{i=1}^{n} M_i.
+\end{equation}
+
+O pico de memória, por sua vez, corresponde ao maior valor observado no conjunto de execuções:
+
+\begin{equation}
+\text{RAM}_{\text{pico}} = \max(M_1, M_2, \ldots, M_n).
+\end{equation}
+
+De maneira análoga, se \(C_i\) representa o uso de CPU observado na \(i\)-ésima execução, o uso médio e o pico de CPU são calculados por:
+
+\begin{align}
+\text{CPU}_{\text{média}} &= \frac{1}{n}\sum_{i=1}^{n} C_i,\\
+\text{CPU}_{\text{pico}} &= \max(C_1, C_2, \ldots, C_n).
+\end{align}
+
+Para as métricas evolutivas, se \(G_i\) representa o número de gerações executadas na \(i\)-ésima requisição, então:
+
+\begin{equation}
+G_{\text{média}} = \frac{1}{n}\sum_{i=1}^{n} G_i.
+\end{equation}
+
+A taxa de sucesso também é calculada por proporção simples:
+
+\begin{equation}
+\text{Sucesso} = \frac{n_{\text{sucesso}}}{n_{\text{total}}}\times 100,
+\end{equation}
+
+em que \(n_{\text{sucesso}}\) é o número de requisições concluídas corretamente e \(n_{\text{total}}\) é o número total de requisições executadas no cenário.
+
+Quando o benchmark utiliza o custo composto tempo \(\times\) memória, a métrica pode ser expressa como o produto entre latência média e RAM média:
+
+\begin{equation}
+C_{tm} = L_{\text{média}}\times \text{RAM}_{\text{média}}.
+\end{equation}
+
+Esse custo composto não substitui as métricas individuais, mas ajuda a identificar situações em que um algoritmo é simultaneamente lento e intensivo em memória. Duas implementações com latências semelhantes, por exemplo, podem ter custos operacionais distintos se uma delas exigir muito mais RAM para produzir resultado equivalente.
+
+O score representa a pontuação associada à função \textit{fitness}. Como a função utiliza penalidades para conflitos e inconsistências, valores menos negativos indicam melhor avaliação relativa. O erro médio representa a quantidade média de inconsistências restantes nas soluções finais. Entretanto, os relatórios analisados não detalham completamente a composição desse erro para todos os algoritmos, ou seja, não permitem afirmar, de forma homogênea, se ele corresponde a conflitos de professor, conflitos de turma, demandas não alocadas ou combinação desses fatores.
+
+De forma geral, a função de score pode ser descrita como uma combinação entre uma pontuação base, eventuais bônus e penalidades aplicadas às violações de restrições. Se \(B\) representa a pontuação base da solução, \(D\) representa o bônus de diversidade, \(v_j\) representa a quantidade de violações do tipo \(j\) e \(\lambda_j\) representa o peso ou a penalidade associada a esse tipo de violação, então o score pode ser representado por:
+
+\begin{equation}
+\text{Score} = B + D - \sum_{j=1}^{m}\lambda_j v_j.
+\end{equation}
+
+Nessa formulação, \(m\) é o número de categorias de restrição consideradas pela função \textit{fitness}. Quanto maior o número de violações ou maior o peso associado a elas, menor tende a ser o score final. Por isso, no benchmark, scores menos negativos indicam soluções relativamente melhores segundo a função \textit{fitness} implementada, embora não garantam, isoladamente, validade acadêmica completa da grade. O erro médio pode ser expresso por:
+
+\begin{equation}
+E_{\text{média}} = \frac{1}{n}\sum_{i=1}^{n} E_i,
+\end{equation}
+
+em que \(E_i\) representa o número de inconsistências remanescentes na solução final da \(i\)-ésima execução. Essa métrica aproxima a qualidade final das soluções, mas sua interpretação permanece limitada quando os relatórios não discriminam a natureza de cada inconsistência.
+
+\section{Resultados Gerais}
+\label{sec:resultados-gerais}
+
+A Tabela~\ref{tab:resultados-gerais-benchmark} apresenta a síntese dos resultados obtidos pelos algoritmos Morpheus, Sunny e Rocket nos dois cenários avaliados. Foram consideradas as principais métricas do benchmark: quantidade de requisições, taxa de sucesso, latência média, p95, uso médio de memória RAM, pico de memória RAM, número médio de gerações, ocorrências de parada antecipada, erro médio e melhor score.
+
+\begin{table}[H]
+\centering
+\caption{Resultados gerais do benchmark dos algoritmos Morpheus, Sunny e Rocket}
+\label{tab:resultados-gerais-benchmark}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllllllllll}
+\toprule
+Cenário & Algoritmo & Requisições & Sucesso & Latência média (ms) & p95 (ms) & RAM média (MB) & Pico RAM (MB) & Gerações médias & Parada antecipada & Erro médio & Melhor score \\
+\midrule
+i3 & Morpheus & 9000 & 99,99\% & 5.343,72 & 6.861,02 & 69,86 & 73,75 & 191,38 & 8.979 & 3,00 & -29.574 \\
+i3 & Sunny & 9000 & 100,00\% & 5.917,48 & 7.546,85 & 835,63 & 1.329,15 & 945,00 & 0 & 3,00 & -29.640 \\
+i3 & Rocket & 9000 & 100,00\% & 803,65 & 986,36 & 13,49 & 24,12 & 191,52 & 8.980 & 3,00 & -29.574 \\
+i5/full & Morpheus & 9000 & 100,00\% & 5.044,99 & 6.058,92 & 72,69 & 73,63 & 191,41 & 8.980 & 3,00 & -29.574 \\
+i5/full & Sunny & 9000 & 100,00\% & 5.832,73 & 7.083,80 & 778,60 & 1.098,75 & 945,00 & 0 & 3,00 & -29.640 \\
+i5/full & Rocket & 9000 & 100,00\% & 640,26 & 777,92 & 11,35 & 20,68 & 191,44 & 8.980 & 3,00 & -29.574 \\
+\bottomrule
+\end{tabular}%
+}
+\fonteautores
+\end{table}
+
+Os resultados mostram que o Rocket apresentou a menor latência média nos dois cenários avaliados. No cenário i3, o Rocket obteve média de 803,65 ms, enquanto o Morpheus obteve 5.343,72 ms e o Sunny obteve 5.917,48 ms. No cenário i5/full, o Rocket apresentou média de 640,26 ms, contra 5.044,99 ms do Morpheus e 5.832,73 ms do Sunny. Assim, em ambos os ambientes, o Rocket respondeu de forma mais rápida, enquanto o Morpheus permaneceu mais rápido que o Sunny.
+
+O mesmo comportamento aparece no percentil 95 da latência. No cenário i3, o p95 do Rocket foi de 986,36 ms, enquanto o Morpheus registrou 6.861,02 ms e o Sunny atingiu 7.546,85 ms. No cenário i5/full, o Rocket registrou p95 de 777,92 ms, contra 6.058,92 ms do Morpheus e 7.083,80 ms do Sunny. Isso indica que a vantagem do Rocket não ocorreu apenas na média, mas também nas execuções mais lentas da distribuição analisada.
+
+A diferença mais expressiva entre os algoritmos ocorreu no consumo de memória. No cenário i3, o Rocket utilizou em média 13,49 MB de RAM, o Morpheus utilizou 69,86 MB e o Sunny utilizou 835,63 MB. No cenário i5/full, o Rocket registrou 11,35 MB, o Morpheus registrou 72,69 MB e o Sunny utilizou 778,60 MB. Portanto, nos dois cenários, o Sunny apresentou consumo médio de memória muito superior aos demais, enquanto o Rocket apresentou o menor consumo registrado.
+
+Em relação ao número de gerações executadas, os algoritmos também apresentaram comportamentos bastante distintos. O Morpheus executou, em média, aproximadamente 191 gerações nos dois cenários, resultado muito próximo ao observado no Rocket, que também ficou em torno de 191 gerações. Já o Sunny executou, em média, 945 gerações. Esse resultado indica que Morpheus e Rocket acionaram com frequência o critério de parada antecipada, enquanto o Sunny executou próximo ao limite máximo configurado.
+
+O erro médio final foi igual a 3,00 para os três algoritmos nos dois cenários. Esse resultado impede afirmar que uma das implementações produziu grades completamente livres de inconsistências. Portanto, a diferença entre os algoritmos aparece de forma mais clara nas métricas operacionais, como tempo e memória, do que na eliminação total dos erros da solução final.
+
+\section{Cenário A -- Desempenho no Ambiente i3}
+\label{sec:cenario-a-i3}
+
+No cenário i3, foram executadas 9.000 requisições para cada algoritmo. O Morpheus apresentou taxa de sucesso de 99,99\%, enquanto o Sunny e o Rocket apresentaram 100,00\%. Embora o Sunny e o Rocket tenham obtido taxa de sucesso ligeiramente superior à do Morpheus, a diferença é residual e não altera a análise geral de desempenho, pois os três algoritmos executaram praticamente todas as requisições com sucesso.
+
+A primeira diferença relevante aparece na latência média. O Rocket apresentou tempo médio de 803,65 ms, enquanto o Morpheus apresentou 5.343,72 ms e o Sunny apresentou 5.917,48 ms. Isso significa que, nesse cenário, o Sunny teve latência média aproximadamente 10,74\% superior à do Morpheus, preservando a relação observada na comparação original. Entretanto, a inclusão do Rocket altera a escala da comparação, pois sua latência média foi muito inferior à dos dois algoritmos anteriormente avaliados.
+
+O comportamento se repete no p95. O Rocket registrou p95 de 986,36 ms, enquanto o Morpheus registrou 6.861,02 ms e o Sunny registrou 7.546,85 ms. Essa métrica é importante porque mostra que, mesmo considerando as execuções mais lentas, o Rocket manteve vantagem sobre Morpheus e Sunny. Além disso, o Morpheus manteve vantagem sobre o Sunny, indicando que o desempenho do Morpheus foi melhor não apenas na média, mas também na cauda da distribuição de tempo quando comparado ao Sunny.
+
+Quanto ao uso de memória, a diferença entre os algoritmos foi ainda mais acentuada. O Rocket utilizou em média 13,49 MB de RAM, com pico de 24,12 MB. O Morpheus utilizou em média 69,86 MB de RAM, com pico de 73,75 MB. O Sunny, por sua vez, utilizou em média 835,63 MB de RAM, com pico de 1.329,15 MB. Isso mostra que o Sunny exigiu uma quantidade de memória muito maior para executar o mesmo tipo de tarefa, enquanto o Rocket apresentou o menor consumo do cenário.
+
+Essa diferença de memória pode estar relacionada ao conjunto formado por arquitetura do microsserviço, runtime utilizado, framework adotado, estrutura de dados e gerenciamento interno de memória. No caso do Sunny, a execução sobre o ecossistema Java pode contribuir para maior ocupação de memória. No caso do Rocket, a implementação em Go, a organização dos índices e o uso de estruturas mais compactas podem ter contribuído para o menor consumo. Entretanto, como os relatórios não apresentam profiling de heap, logs de Garbage Collector ou rastreamento detalhado de alocação, essa explicação deve ser tratada como hipótese, e não como conclusão definitiva.
+
+No comportamento evolutivo, o Morpheus apresentou média de 191,38 gerações, o Rocket apresentou média de 191,52 gerações e o Sunny apresentou média de 945 gerações. Além disso, o Morpheus acionou parada antecipada em 8.979 execuções, o Rocket em 8.980 execuções e o Sunny não apresentou ocorrências de early stop. Esse dado indica que, na maior parte das execuções, Morpheus e Rocket encontraram um ponto de estabilização antes do limite máximo de gerações.
+
+O erro médio foi igual para os três algoritmos, com valor de 3,00. Já o melhor score foi igual entre Morpheus e Rocket, com -29.574, e ligeiramente inferior no Sunny, com -29.640. Como valores menos negativos representam melhor avaliação relativa, Morpheus e Rocket tiveram pequena vantagem nessa métrica. No entanto, a diferença absoluta entre os scores é baixa em relação às penalidades utilizadas pela função \textit{fitness}, o que exige cautela na interpretação.
+
+Diante dos resultados do cenário i3, o Rocket apresentou o melhor desempenho operacional, principalmente em tempo de resposta e consumo de memória. O Morpheus permaneceu superior ao Sunny nas métricas operacionais, enquanto o Sunny manteve taxa de sucesso total, mas exigiu mais memória e executou mais gerações sem apresentar redução no erro médio final.
+
+\subsection{Cenário B -- Desempenho no Ambiente i5/full}
+\label{sec:cenario-b-i5-full}
+
+No cenário i5/full, cada algoritmo também foi submetido a 9.000 requisições. Nesse ambiente, os três algoritmos apresentaram taxa de sucesso de 100,00\%, o que indica que todos conseguiram concluir todas as execuções registradas no benchmark.
+
+A latência média novamente favoreceu o Rocket. O algoritmo apresentou média de 640,26 ms, enquanto o Morpheus apresentou 5.044,99 ms e o Sunny apresentou 5.832,73 ms. Na comparação entre Morpheus e Sunny, a diferença representa uma latência média aproximadamente 15,61\% maior para o Sunny. Em comparação com o cenário i3, a vantagem relativa do Morpheus sobre o Sunny tornou-se ainda mais evidente, mas a presença do Rocket mostra uma terceira faixa de desempenho operacional, substancialmente inferior em tempo de resposta.
+
+O p95 também manteve o mesmo padrão. O Rocket registrou 777,92 ms, enquanto o Morpheus registrou 6.058,92 ms e o Sunny registrou 7.083,80 ms. Na comparação entre Morpheus e Sunny, isso representa uma diferença de aproximadamente 16,92\% em favor do Morpheus. Portanto, no cenário i5/full, o Rocket apresentou melhor comportamento nas execuções mais lentas, e o Morpheus também manteve vantagem sobre o Sunny.
+
+No consumo de memória, o Rocket utilizou em média 11,35 MB de RAM, com pico de 20,68 MB. O Morpheus utilizou em média 72,69 MB de RAM, com pico de 73,63 MB. O Sunny utilizou em média 778,60 MB de RAM, com pico de 1.098,75 MB. Embora o consumo médio do Sunny tenha sido menor no i5/full do que no i3, ele permaneceu muito superior ao consumo observado no Morpheus e no Rocket.
+
+A diferença de gerações também permaneceu estável. O Rocket executou, em média, 191,44 gerações, o Morpheus executou 191,41 gerações e o Sunny executou 945 gerações. O Morpheus e o Rocket registraram 8.980 ocorrências de parada antecipada, enquanto o Sunny novamente não registrou early stop. Esse comportamento reforça que os algoritmos seguem dinâmicas evolutivas distintas, com Morpheus e Rocket interrompendo a execução antes do limite máximo na maior parte das requisições.
+
+A parada antecipada no Morpheus e no Rocket indica que os algoritmos deixaram de executar antes do limite máximo de gerações na maior parte das requisições. Isso pode ocorrer quando não há melhoria significativa no \textit{fitness} durante uma determinada janela de gerações. Dessa forma, os algoritmos evitam continuar processando quando a população já se encontra estabilizada segundo o critério adotado.
+
+O Sunny, por outro lado, executou próximo ao limite máximo de gerações. Isso não significa necessariamente pior qualidade evolutiva, mas indica maior custo computacional para atingir uma solução com erro médio equivalente ao dos demais algoritmos. Como os três encerraram com erro médio igual a 3,00, o maior número de gerações do Sunny não resultou, nos dados analisados, em eliminação adicional de inconsistências.
+
+Quanto ao score, o Morpheus e o Rocket mantiveram o valor de -29.574, enquanto o Sunny manteve -29.640. A diferença novamente favorece Morpheus e Rocket, mas deve ser interpretada como vantagem pequena. O dado mais relevante do cenário i5/full é, portanto, a combinação entre menor latência, menor p95, menor consumo de memória e mesmo erro médio final observada no Rocket, seguida pelo desempenho operacional do Morpheus em relação ao Sunny.
+
+Diante dos resultados, o cenário i5/full confirma o comportamento observado no cenário i3. O Rocket apresentou o melhor desempenho operacional, o Morpheus permaneceu mais eficiente que o Sunny, e o Sunny consumiu mais memória e executou mais gerações sem obter vantagem final no erro médio.
+
+\section{Cenário C -- Análise por Parâmetro}
+\label{sec:cenario-c-parametro}
+
+Além da comparação geral entre os algoritmos, o benchmark também avaliou o comportamento das implementações diante da variação de parâmetros evolutivos. Os parâmetros analisados foram taxa de \textit{crossover}, tamanho da população, número de gerações, taxa de elitismo, pontuação base, penalidade de conflito, bônus de diversidade, tamanho do torneio e taxa de mutação.
+
+Essa análise é importante porque algoritmos genéticos são sensíveis à configuração dos seus parâmetros. Alterações na taxa de \textit{crossover} podem modificar a capacidade de recombinação da população. Mudanças na taxa de mutação podem aumentar ou reduzir a diversidade genética. O tamanho da população influencia a quantidade de soluções candidatas avaliadas a cada geração. Já o número de gerações define por quanto tempo o algoritmo poderá evoluir suas soluções.
+
+Nos dados analisados originalmente entre Morpheus e Sunny, o Morpheus apresentou menor tempo médio na maioria dos parâmetros avaliados. No cenário i3, o maior diferencial médio apareceu na taxa de \textit{crossover}, parâmetro em que o Sunny ficou 27,93\% acima do tempo médio do Morpheus. No cenário i5/full, a taxa de \textit{crossover} também apresentou o maior diferencial, com o Sunny 33,03\% acima do tempo médio do Morpheus.
+
+Esse resultado indica que, nas variações relacionadas ao \textit{crossover}, o Morpheus apresentou melhor comportamento operacional que o Sunny. Como o \textit{crossover} é uma etapa executada repetidamente ao longo do processo evolutivo, diferenças de implementação nessa operação podem ter impacto relevante no tempo total de execução.
+
+Em parâmetros como tamanho da população, número de gerações, taxa de elitismo, pontuação base, penalidade de conflito, bônus de diversidade e tamanho do torneio, o Morpheus também apresentou médias de tempo inferiores às do Sunny. Esse comportamento reforça que sua vantagem não ocorreu apenas em um recorte específico, mas apareceu em diferentes dimensões do benchmark.
+
+A principal exceção observada na comparação entre Morpheus e Sunny foi a taxa de mutação. Nesse parâmetro, o Sunny apresentou tempo médio menor nos dois cenários. No cenário i3, sua vantagem foi de aproximadamente 9,50\%. No cenário i5/full, a vantagem foi de aproximadamente 6,19\%. Esse resultado mostra que o Sunny pode apresentar desempenho competitivo em configurações específicas, mesmo não superando o Morpheus no agregado global.
+
+A incorporação do Rocket amplia essa leitura. No cenário i3, as maiores médias do Rocket ocorreram em taxa de elitismo, com 946,65 ms, tamanho do torneio, com 946,01 ms, penalidade de conflito, com 924,98 ms, bônus de diversidade, com 922,08 ms, e pontuação base, com 913,11 ms. No cenário i5/full, as maiores médias ocorreram em taxa de elitismo, com 738,94 ms, tamanho do torneio, com 734,23 ms, bônus de diversidade, com 732,38 ms, pontuação base, com 727,94 ms, e penalidade de conflito, com 727,61 ms.
+
+Mesmo nos parâmetros mais custosos para o Rocket, suas médias permaneceram inferiores às médias observadas para Morpheus e Sunny nos mesmos cenários. No i3, por exemplo, os parâmetros menos custosos para Morpheus ficaram acima de 3.000 ms, enquanto o Rocket permaneceu abaixo de 1.000 ms em todos os agrupamentos paramétricos. No i5/full, o comportamento foi semelhante, com o Rocket abaixo de 740 ms nos agrupamentos de maior latência média e os demais algoritmos em patamares superiores.
+
+Essa diferença pode indicar que o custo das operações evolutivas do Rocket foi reduzido pela combinação de estruturas indexadas, população e \textit{fitness} avaliados de forma concorrente e reparo local restrito a candidatos já filtrados. Entretanto, os dados não isolam o efeito de cada componente arquitetural. Portanto, não é possível afirmar se a vantagem decorre principalmente da linguagem, do modelo de concorrência, das estruturas de dados, da implementação do reparo ou da combinação desses fatores.
+
+A análise por parâmetro deve ser interpretada com cautela, pois os resultados representam agrupamentos experimentais do benchmark progressivo. Portanto, não se trata necessariamente de um experimento isolado em que apenas uma variável foi alterada sob controle absoluto. Ainda assim, os dados permitem identificar em quais dimensões paramétricas as diferenças entre os algoritmos se tornaram mais evidentes.
+
+De modo geral, o Rocket apresentou o menor tempo médio ao longo dos parâmetros avaliados, o Morpheus apresentou maior consistência operacional que o Sunny na maioria dos parâmetros, e o Sunny demonstrou vantagem pontual sobre o Morpheus na taxa de mutação. Dessa forma, a análise paramétrica confirma a tendência observada nos resultados gerais e mostra que a inclusão do Rocket revela um nível adicional de eficiência que não era observável na comparação apenas entre Morpheus e Sunny.
+
+\section{Comparação do Comportamento Evolutivo}
+\label{sec:comportamento-evolutivo}
+
+A análise das gerações executadas mostra uma das principais diferenças entre os algoritmos. O Morpheus apresentou média próxima de 191 gerações nos dois cenários, o Rocket também apresentou média próxima de 191 gerações, enquanto o Sunny apresentou média de 945 gerações. Essa diferença indica que Morpheus e Rocket encerraram suas execuções de forma antecipada com muito mais frequência.
+
+Nos dois cenários, o Morpheus registrou quase 9.000 ocorrências de parada antecipada. No cenário i3, foram 8.979 ocorrências. No cenário i5/full, foram 8.980. Considerando que cada cenário possui 9.000 requisições para o Morpheus, conclui-se que a parada antecipada foi predominante. O Rocket apresentou comportamento equivalente, com 8.980 ocorrências de parada antecipada tanto no i3 quanto no i5/full. O Sunny, por outro lado, não registrou ocorrências desse tipo nos relatórios analisados.
+
+A parada antecipada pode representar uma vantagem operacional quando evita processamento desnecessário. Se o algoritmo passa várias gerações sem melhorar o \textit{fitness}, continuar executando até o limite máximo pode aumentar o tempo de resposta sem produzir ganho significativo na solução. Nesse sentido, o comportamento do Morpheus e do Rocket contribuiu para reduzir o número médio de gerações executadas.
+
+Entretanto, essa métrica não deve ser interpretada isoladamente como prova de superioridade evolutiva. Um algoritmo pode parar cedo porque encontrou uma boa solução rapidamente, mas também pode parar porque atingiu um platô de melhoria. Por isso, a análise precisa considerar as demais métricas, como score e erro médio.
+
+O Sunny, por sua vez, executou próximo ao limite máximo de gerações na maior parte das execuções. Esse comportamento está relacionado ao fato de sua dinâmica evolutiva depender da continuidade dos ciclos de seleção, \textit{crossover}, mutação, avaliação e elitismo até o limite configurado. Como não houve registro de parada antecipada nos relatórios, o algoritmo manteve uma execução mais prolongada.
+
+O erro médio final foi igual para os três algoritmos, permanecendo em 3,00 nos dois cenários. Isso indica que, apesar de executar mais gerações, o Sunny não conseguiu reduzir o erro médio abaixo do resultado obtido pelo Morpheus e pelo Rocket. Por outro lado, Morpheus e Rocket também não eliminaram completamente os erros restantes, mesmo com melhor desempenho operacional.
+
+A métrica de melhor geração média também exige cautela. No Morpheus, o melhor indivíduo aparece, em média, nas primeiras gerações, com média de 1,25 no i3 e 1,27 no i5/full. No Rocket, esse comportamento é semelhante, com média de 1,39 no i3 e 1,31 no i5/full. Esse padrão pode indicar que soluções de alto \textit{fitness} já foram produzidas na população inicial, que os mecanismos de reparo tiveram forte impacto no início da execução ou que a população rapidamente atingiu uma região de estabilização. Sem detalhamento adicional dos registros, não é possível afirmar qual desses fatores foi determinante.
+
+No caso do Sunny, a média de melhor geração foi mais alta, com 20,16 no i3 e 20,92 no i5/full, além de maior permanência no ciclo evolutivo. No entanto, como o erro médio e o score final não superaram os de Morpheus e Rocket, o custo adicional de execução não se traduziu em vantagem final nas métricas disponíveis.
+
+A presença do Rocket torna mais clara a distinção entre número de gerações e custo de execução. Morpheus e Rocket executaram quantidades médias de gerações praticamente equivalentes, mas o Rocket apresentou latência e consumo de memória muito inferiores. Isso sugere que a diferença operacional entre eles não decorre apenas do critério de parada, mas também do custo por geração, da organização interna dos dados e da forma como população, \textit{fitness} e reparo são executados.
+
+\section{Score e Erro Médio}
+\label{sec:score-erro-medio}
+
+O score final é uma métrica importante porque resume a avaliação da solução segundo a função \textit{fitness}. Como a função aplica penalidades, scores menos negativos indicam soluções relativamente melhores. Nos dois cenários avaliados, o Morpheus e o Rocket apresentaram melhor score, com -29.574, enquanto o Sunny apresentou -29.640.
+
+A diferença entre Morpheus e Sunny foi de 66 pontos, e a diferença entre Rocket e Sunny também foi de 66 pontos. Embora essa diferença favoreça Morpheus e Rocket, ela é pequena quando comparada à escala das penalidades utilizadas na função \textit{fitness}. Penalidades de conflito podem assumir valores muito superiores a essa diferença absoluta, o que significa que o score, isoladamente, não sustenta uma conclusão forte sobre superioridade qualitativa.
+
+O erro médio, por sua vez, foi igual para os três algoritmos. Todos terminaram com erro médio 3,00 nos cenários i3 e i5/full. Esse dado é relevante porque mostra que nenhum dos algoritmos conseguiu produzir, em média, soluções completamente livres de inconsistências.
+
+A interpretação do erro médio é limitada pela ausência de decomposição homogênea dos tipos de erro nos relatórios consolidados. Três inconsistências podem representar problemas de baixa gravidade, corrigíveis manualmente, ou conflitos estruturais capazes de inviabilizar o uso direto da grade. Sem essa informação, não é possível afirmar se as soluções finais são diretamente utilizáveis sem revisão.
+
+Dessa forma, a comparação entre os algoritmos é mais robusta nas métricas operacionais do que nas métricas qualitativas. O Rocket foi mais rápido, consumiu menos memória e teve score equivalente ao do Morpheus. O Morpheus, por sua vez, foi mais rápido e consumiu menos memória que o Sunny, além de apresentar score ligeiramente melhor. Entretanto, os três mantiveram o mesmo erro médio final. Portanto, a vantagem do Rocket e do Morpheus em relação ao Sunny deve ser descrita principalmente como operacional, e não como evidência suficiente de superioridade qualitativa completa das grades geradas.
+
+\section{Limitações dos Testes}
+\label{sec:limitacoes-testes}
+
+Apesar de o benchmark permitir uma comparação objetiva entre Morpheus, Sunny e Rocket, algumas limitações devem ser consideradas. A primeira delas está relacionada ao ambiente de execução. Os relatórios não detalham completamente as configurações de hardware e software utilizadas em cada cenário. Informações como processador exato, quantidade de núcleos, memória disponível, sistema operacional, versões de runtime, uso de container e limites de CPU ou RAM não estão completamente especificadas.
+
+Essa ausência limita a reprodutibilidade exata dos testes. Em benchmarks computacionais, pequenas diferenças no ambiente podem afetar métricas como tempo de execução, consumo de memória e uso de CPU. Por isso, os resultados devem ser entendidos como válidos para o protocolo analisado, e não como medidas absolutas independentes do ambiente.
+
+Outra limitação está relacionada ao controle da aleatoriedade. Algoritmos genéticos dependem de processos estocásticos, como seleção, \textit{crossover}, mutação e geração da população inicial. Os relatórios não informam as sementes aleatórias utilizadas nas execuções. Dessa forma, embora as repetições reduzam parte da variabilidade, a reprodução exata dos resultados fica limitada.
+
+Também não há detalhamento completo e homogêneo sobre a composição do erro médio. Como essa métrica não é decomposta por tipo de violação de forma suficiente para sustentar comparação qualitativa aprofundada, não é possível identificar, a partir da síntese apresentada, se os erros restantes correspondem a choques de professor, choques de turma, horários inválidos, demandas não alocadas ou outro tipo de inconsistência. Essa limitação impede uma avaliação mais profunda da qualidade acadêmica das grades geradas.
+
+Além disso, as métricas de CPU devem ser interpretadas com cautela. Os relatórios indicam valores médios e de pico, mas não esclarecem completamente se a medição foi feita por processo, container ou host. Também não há detalhamento sobre possíveis interferências externas, concorrência, aquecimento ou descarte de outliers. Essa cautela é especialmente relevante no caso do Rocket, pois a média de CPU registrada foi baixa, enquanto os picos foram elevados, o que pode refletir características da coleta por amostragem, execução concorrente concentrada em intervalos curtos ou particularidades do ambiente de medição.
+
+Outra limitação decorre do fato de os relatórios do Rocket terem sido gerados separadamente dos relatórios de Morpheus e Sunny, embora com o mesmo perfil de \textit{payload} e os mesmos cenários declarados. Essa separação não invalida a comparação descritiva, mas recomenda cautela adicional, pois diferenças de momento de execução, estado do host, versão de container ou condições de carga podem afetar métricas operacionais.
+
+Por fim, a análise apresentada é predominantemente descritiva. Não foram aplicados testes estatísticos inferenciais, intervalos de confiança ou análise formal de significância entre os três algoritmos. Assim, os resultados devem ser interpretados como evidências experimentais do benchmark executado, e não como comprovação estatística universal de superioridade de um algoritmo sobre o outro.
+
+\section{Síntese dos Resultados}
+\label{sec:sintese-resultados}
+
+Os resultados obtidos no benchmark indicam que o Rocket apresentou o melhor desempenho operacional entre os três algoritmos nos dois cenários avaliados. Essa vantagem aparece principalmente na latência média, no percentil 95 da latência e no consumo de memória RAM. O Rocket também apresentou número médio de gerações semelhante ao Morpheus, em razão da ocorrência frequente de parada antecipada.
+
+No cenário i3, o Rocket foi mais rápido tanto na média quanto no p95, além de consumir menos memória que Morpheus e Sunny. O Morpheus foi mais rápido que o Sunny e consumiu muito menos memória, preservando a conclusão da comparação original entre os dois algoritmos. No cenário i5/full, o mesmo comportamento foi mantido, com vantagem operacional do Rocket e vantagem do Morpheus sobre o Sunny na latência média, no p95 e no consumo de memória.
+
+O Sunny apresentou taxa de sucesso total nos dois cenários e teve desempenho pontualmente melhor que o Morpheus na análise do parâmetro taxa de mutação. Também deve ser considerado que sua implementação não se limita à penalização pura, pois utiliza organização interna dos dados, inicialização guiada por restrições e reparo parcial. Ainda assim, no resultado agregado do benchmark, o Sunny consumiu mais memória, executou mais gerações e não obteve redução no erro médio final em relação ao Morpheus e ao Rocket.
+
+A comparação de score favoreceu Morpheus e Rocket, mas com diferença pequena em relação ao Sunny. O erro médio permaneceu igual para os três algoritmos, com valor de 3,00. Assim, não é possível afirmar que Rocket ou Morpheus produziram grades completamente válidas ou qualitativamente superiores em todos os aspectos. O que os dados sustentam com maior clareza é que Rocket e Morpheus produziram resultados equivalentes no erro médio com menor custo operacional que o Sunny, sendo o Rocket o algoritmo com menor custo operacional entre os três.
+
+A inclusão do Rocket revela uma dimensão que a comparação anterior entre Morpheus e Sunny não permitia observar. Como Morpheus e Rocket apresentaram número médio de gerações e frequência de parada antecipada muito semelhantes, mas tempos e consumos de memória bastante diferentes, os resultados sugerem que a eficiência não depende apenas de encerrar o ciclo evolutivo mais cedo. Ela também pode estar associada ao custo por geração, ao modelo de organização dos dados, à avaliação paralela da população, ao reparo local e ao gerenciamento de memória da implementação.
+
+Dessa forma, considerando o \textit{payload}, os parâmetros e o ambiente avaliados, o Rocket mostrou-se mais adequado para o contexto analisado sob a perspectiva operacional. O Morpheus manteve-se como alternativa mais eficiente que o Sunny, enquanto o Sunny demonstrou estabilidade de execução, mas com maior custo de memória e maior número de gerações. Essa conclusão, contudo, está restrita ao protocolo de benchmark executado e não deve ser generalizada como superioridade universal de linguagem, arquitetura ou abordagem evolutiva.

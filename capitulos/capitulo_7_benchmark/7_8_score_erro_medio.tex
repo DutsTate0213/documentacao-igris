@@ -1,0 +1,12 @@
+\section{Score e Erro Médio}
+\label{sec:score-erro-medio}
+
+O score final é uma métrica importante porque resume a avaliação da solução segundo a função \textit{fitness}. Como a função aplica penalidades, scores menos negativos indicam soluções relativamente melhores. Nos dois cenários avaliados, o Morpheus e o Rocket apresentaram melhor score, com -29.574, enquanto o Sunny apresentou -29.640.
+
+A diferença entre Morpheus e Sunny foi de 66 pontos, e a diferença entre Rocket e Sunny também foi de 66 pontos. Embora essa diferença favoreça Morpheus e Rocket, ela é pequena quando comparada à escala das penalidades utilizadas na função \textit{fitness}. Penalidades de conflito podem assumir valores muito superiores a essa diferença absoluta, o que significa que o score, isoladamente, não sustenta uma conclusão forte sobre superioridade qualitativa.
+
+O erro médio, por sua vez, foi igual para os três algoritmos. Todos terminaram com erro médio 3,00 nos cenários i3 e i5/full. Esse dado é relevante porque mostra que nenhum dos algoritmos conseguiu produzir, em média, soluções completamente livres de inconsistências.
+
+A interpretação do erro médio é limitada pela ausência de decomposição homogênea dos tipos de erro nos relatórios consolidados. Três inconsistências podem representar problemas de baixa gravidade, corrigíveis manualmente, ou conflitos estruturais capazes de inviabilizar o uso direto da grade. Sem essa informação, não é possível afirmar se as soluções finais são diretamente utilizáveis sem revisão.
+
+Dessa forma, a comparação entre os algoritmos é mais robusta nas métricas operacionais do que nas métricas qualitativas. O Rocket foi mais rápido, consumiu menos memória e teve score equivalente ao do Morpheus. O Morpheus, por sua vez, foi mais rápido e consumiu menos memória que o Sunny, além de apresentar score ligeiramente melhor. Entretanto, os três mantiveram o mesmo erro médio final. Portanto, a vantagem do Rocket e do Morpheus em relação ao Sunny deve ser descrita principalmente como operacional, e não como evidência suficiente de superioridade qualitativa completa das grades geradas.

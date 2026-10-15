@@ -1,0 +1,183 @@
+\section{Engenharia de Requisitos}
+\label{sec:3.3}
+
+A Engenharia de Requisitos é a disciplina que identifica, documenta e gerencia as necessidades dos stakeholders, estabelecendo o contrato funcional e de qualidade entre o sistema a ser desenvolvido e seus usuários \cite[p.~83]{sommerville2016}. No contexto do IGRIS, os requisitos foram levantados a partir das necessidades operacionais de coordenadores acadêmicos, professores e administradores de IES, e organizados em duas categorias: Requisitos Funcionais que descrevem os comportamentos que o sistema deve prover e Requisitos Não Funcionais que estabelecem os critérios de qualidade, desempenho e restrições arquiteturais.
+
+\subsection{Requisitos Funcionais}
+\label{subsec:3.3.1}
+
+Os requisitos funcionais descrevem os comportamentos específicos que o software deve fornecer aos usuários para cumprir seu propósito. Segundo \citeonline{sommerville2016}, esses requisitos definem o que o sistema deve fazer e descrevem como o sistema responde a entradas, interações ou eventos específicos. O Quadro~\ref{tab:rf} apresenta os requisitos funcionais do IGRIS, organizados por domínio funcional.
+
+\tituloquadro{tab:rf}{Requisitos Funcionais do IGRIS}
+
+\begin{longtable}{|C{1.8cm}|L{4.5cm}|L{7.1cm}|}
+\hline
+\textbf{Código} & \textbf{Requisito} & \textbf{Descrição} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Código} & \textbf{Requisito} & \textbf{Descrição} \\
+\hline
+\endhead
+RF01 & Manter Disciplinas & O sistema deve ser capaz de manter disciplinas. \\
+\hline
+RF02 & Manter Turmas & O sistema deve ser capaz de manter turmas. \\
+\hline
+RF03 & Manter Cursos & O sistema deve ser capaz de manter cursos. \\
+\hline
+RF04 & Vincular Disciplinas a Cursos & O sistema deve ser capaz de vincular e manter a relação de quais disciplinas pertencem a quais cursos. \\
+\hline
+RF05 & Manter Matrizes Curriculares & O sistema deve ser capaz de manter matrizes curriculares (associação que define quais disciplinas compõem uma turma no semestre). \\
+\hline
+RF06 & Manter Turnos Letivos & O sistema deve ser capaz de manter turnos letivos (ex.: Matutino, Noturno). \\
+\hline
+RF07 & Manter Dias da Semana Letivos & O sistema deve ser capaz de manter dias da semana letivos. \\
+\hline
+RF08 & Manter Disponibilidade Docente & O professor deve ser capaz de informar e manter sua disponibilidade de dias e horários para lecionar. \\
+\hline
+RF09 & Gerar Grade Automatizada & O sistema deve ser capaz de gerar a grade de horários de forma automatizada (integração com microsserviços). \\
+\hline
+\end{longtable}
+
+\newpage
+\begin{longtable}{|C{1.8cm}|L{4.5cm}|L{7.1cm}|}
+\hline
+\textbf{Código} & \textbf{Requisito} & \textbf{Descrição} \\
+\hline
+\endhead
+RF10 & Salvar Grade Gerada & O sistema deve ser capaz de salvar a grade gerada. \\
+\hline
+RF11 & Visualizar Grade e Histórico & O coordenador/administrador deve ser capaz de visualizar a grade gerada no semestre e acessar o histórico de grades. \\
+\hline
+RF12 & Manter Instituições & O sistema deve ser capaz de manter instituições (Faculdades/Universidades). \\
+\hline
+RF13 & Manter Coordenações & O sistema deve ser capaz de manter coordenações. \\
+\hline
+RF14 & Manter Coordenadores & O sistema deve ser capaz de manter coordenadores, vinculados a instituições e coordenações. \\
+\hline
+RF15 & Gerenciar Professores & O coordenador deve ser capaz de gerenciar os professores vinculados à sua instituição. \\
+\hline
+RF16 & Associar Professores a Disciplinas & O sistema deve ser capaz de associar professores às disciplinas que lecionam. \\
+\hline
+RF17 & Manter Configurações por Instituição & O administrador deve ser capaz de manter configurações e vínculos específicos por instituição. \\
+\hline
+RF18 & Gerar Link de Cadastro & O coordenador deve ser capaz de gerar um link exclusivo para o cadastro facilitado de novos professores. \\
+\hline
+\end{longtable}
+
+\newpage
+\begin{longtable}{|C{1.8cm}|L{4.5cm}|L{7.1cm}|}
+\hline
+\textbf{Código} & \textbf{Requisito} & \textbf{Descrição} \\
+\hline
+\endhead
+RF19 & Validar Usuários via Link & O coordenador deve ser capaz de validar usuários cadastrados via link, ativando ou desativando seus acessos. \\
+\hline
+RF20 & Vincular Coordenador a Curso & O sistema deve ser capaz de vincular coordenadores a cursos específicos dentro de uma instituição. \\
+\hline
+RF21 & Manter Cadastro de Usuários & O sistema deve ser capaz de manter o cadastro global de usuários. \\
+\hline
+RF22 & Manter Perfis de Acesso & O sistema deve ser capaz de manter os perfis de acesso dos usuários. \\
+\hline
+RF23 & Múltiplos Perfis por Usuário & O usuário deve ser capaz de ter múltiplos perfis associados à sua conta. \\
+\hline
+RF24 & Alterar Perfil Ativo & O usuário deve ser capaz de alterar o seu perfil ativo de visualização enquanto logado. \\
+\hline
+RF25 & Login Autenticado & O usuário deve ser capaz de realizar login autenticado no sistema. \\
+\hline
+RF26 & Recuperação de Senha & O usuário deve ser capaz de solicitar a recuperação de senha via link de e-mail. \\
+\hline
+RF27 & Troca de Senha & O usuário deve ser capaz de trocar sua própria senha de forma segura. \\
+\hline
+\end{longtable}
+
+\newpage
+\begin{longtable}{|C{1.8cm}|L{4.5cm}|L{7.1cm}|}
+\hline
+\textbf{Código} & \textbf{Requisito} & \textbf{Descrição} \\
+\hline
+\endhead
+RF28 & Configurar Parâmetros do AG & O administrador deve ser capaz de alterar os parâmetros matemáticos dos microsserviços (tamanho de população, gerações, \textit{crossover}, mutação etc.). \\
+\hline
+RF29 & Configurações Globais em Runtime & O administrador deve ser capaz de alterar parâmetros globais do sistema em tempo de execução, sem reinicialização. \\
+\hline
+RF30 & Enviar Feedback & O usuário deve ser capaz de enviar feedbacks descritivos sobre o sistema. \\
+\hline
+RF31 & Manter Categorias de Feedback & O administrador deve ser capaz de manter as categorias de classificação de feedbacks. \\
+\hline
+RF32 & Visualizar Própria Grade & O professor deve ser capaz de visualizar sua grade horária ativa. \\
+\hline
+RF33 & Ciclo de Vida das Grades & O sistema deve gerenciar automaticamente o ciclo de vida das grades: inativar a anterior ao gerar nova; inativar ao encerrar o semestre. \\
+\hline
+RF34 & Bloqueio de Disponibilidade & Enquanto houver grade ativa, o professor não deve ser capaz de alterar sua disponibilidade; apenas o coordenador pode. \\
+\hline
+RF35 & Notificação por E-mail & O sistema deve enviar automaticamente e-mail notificando os professores quando uma grade for ativada ou inativada. \\
+\hline
+\end{longtable}
+
+\fonteautores
+
+\subsection{Requisitos Não Funcionais}
+\label{subsec:3.3.2}
+
+Enquanto os requisitos funcionais definem o que o sistema deve fazer, os requisitos não funcionais estabelecem os critérios de qualidade, desempenho e restrições que a solução deve respeitar \cite[p.~86]{sommerville2016}. O Quadro~\ref{tab:rnf} consolida os requisitos não funcionais do IGRIS.
+
+\tituloquadro{tab:rnf}{Requisitos Não Funcionais do IGRIS}
+
+\begin{longtable}{|C{1.8cm}|L{4.5cm}|L{7.1cm}|}
+\hline
+\textbf{Código} & \textbf{Requisito} & \textbf{Descrição} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Código} & \textbf{Requisito} & \textbf{Descrição} \\
+\hline
+\endhead
+RNF01 & Arquitetura em Camadas & O sistema principal deve seguir o padrão de Arquitetura em Camadas (Layered Architecture). \\
+\hline
+RNF02 & Escalabilidade via Microsserviços & O cálculo pesado da geração de grades deve ser desacoplado da API principal, processado por microsserviços dedicados. \\
+\hline
+RNF03 & API RESTful & A aplicação de backend deve seguir inteiramente os princípios RESTful. \\
+\hline
+RNF04 & Autenticação Stateless (JWT) & A comunicação cliente-servidor deve ser stateless, utilizando tokens JWT injetados via cookies ou cabeçalhos. \\
+\hline
+RNF05 & Criptografia de Senhas & As senhas nunca devem ser armazenadas em texto plano, utilizando hash com salt (ex.: BCrypt). \\
+\hline
+RNF06 & Controle de Acesso (RBAC) & O sistema deve implementar controle de acesso baseado em papéis (RBAC), verificando permissões por rota. \\
+\hline
+RNF07 & Geração de Grade Assíncrona & A geração da grade deve rodar de forma assíncrona, com o frontend exibindo indicador de progresso. \\
+\hline
+RNF08 & Cache em Memória & O sistema deve utilizar cache em memória (ex.: Caffeine) para mitigar consultas frequentes ao banco de dados. \\
+\hline
+RNF09 & Integridade Referencial & A aplicação deve manter rigorosamente a integridade referencial dos dados com chaves estrangeiras. \\
+\hline
+\end{longtable}
+
+\newpage
+\begin{longtable}{|C{1.8cm}|L{4.5cm}|L{7.1cm}|}
+\hline
+\textbf{Código} & \textbf{Requisito} & \textbf{Descrição} \\
+\hline
+\endhead
+RNF10 & Exclusão Lógica & Registros críticos devem priorizar exclusão lógica (Soft Delete) em vez de exclusão física permanente. \\
+\hline
+RNF11 & Auditoria e Logging & O sistema deve manter logs estruturados de acessos, erros e operações cruciais. \\
+\hline
+RNF12 & Padrão de Resposta JSON & A API deve envelopar todas as respostas em padrão JSON unificado, nunca expondo stack trace nativo ao cliente. \\
+\hline
+RNF13 & Comunicação Inter-serviços & Os microsserviços devem se comunicar via HTTP/REST pela rede interna Docker, sem exposição direta ao exterior. \\
+\hline
+RNF14 & Configuração Dinâmica & Os parâmetros do algoritmo genético devem ser ajustáveis em tempo de execução, sem reinicialização dos servidores. \\
+\hline
+RNF15 & Containerização & Todos os componentes devem ser containerizados via Docker para garantir reprodutibilidade dos ambientes. \\
+\hline
+RNF16 & Notificação por E-mail & O sistema deve ser capaz de enviar e-mails transacionais para notificação de professores. \\
+\hline
+RNF17 & Testes de Integração & O sistema deve possuir testes de integração automatizados cobrindo os fluxos críticos de negócio. \\
+\hline
+RNF18 & Suporte Multi-instituição & O sistema deve suportar múltiplas instituições de ensino de forma isolada na mesma instância. \\
+\hline
+\end{longtable}
+
+\fonteautores
+\setcounter{table}{0}

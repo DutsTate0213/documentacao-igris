@@ -1,0 +1,20 @@
+\section{Comparação do Comportamento Evolutivo}
+\label{sec:comportamento-evolutivo}
+
+A análise das gerações executadas mostra uma das principais diferenças entre os algoritmos. O Morpheus apresentou média próxima de 191 gerações nos dois cenários, o Rocket também apresentou média próxima de 191 gerações, enquanto o Sunny apresentou média de 945 gerações. Essa diferença indica que Morpheus e Rocket encerraram suas execuções de forma antecipada com muito mais frequência.
+
+Nos dois cenários, o Morpheus registrou quase 9.000 ocorrências de parada antecipada. No cenário i3, foram 8.979 ocorrências. No cenário i5/full, foram 8.980. Considerando que cada cenário possui 9.000 requisições para o Morpheus, conclui-se que a parada antecipada foi predominante. O Rocket apresentou comportamento equivalente, com 8.980 ocorrências de parada antecipada tanto no i3 quanto no i5/full. O Sunny, por outro lado, não registrou ocorrências desse tipo nos relatórios analisados.
+
+A parada antecipada pode representar uma vantagem operacional quando evita processamento desnecessário. Se o algoritmo passa várias gerações sem melhorar o \textit{fitness}, continuar executando até o limite máximo pode aumentar o tempo de resposta sem produzir ganho significativo na solução. Nesse sentido, o comportamento do Morpheus e do Rocket contribuiu para reduzir o número médio de gerações executadas.
+
+Entretanto, essa métrica não deve ser interpretada isoladamente como prova de superioridade evolutiva. Um algoritmo pode parar cedo porque encontrou uma boa solução rapidamente, mas também pode parar porque atingiu um platô de melhoria. Por isso, a análise precisa considerar as demais métricas, como score e erro médio.
+
+O Sunny, por sua vez, executou próximo ao limite máximo de gerações na maior parte das execuções. Esse comportamento está relacionado ao fato de sua dinâmica evolutiva depender da continuidade dos ciclos de seleção, \textit{crossover}, mutação, avaliação e elitismo até o limite configurado. Como não houve registro de parada antecipada nos relatórios, o algoritmo manteve uma execução mais prolongada.
+
+O erro médio final foi igual para os três algoritmos, permanecendo em 3,00 nos dois cenários. Isso indica que, apesar de executar mais gerações, o Sunny não conseguiu reduzir o erro médio abaixo do resultado obtido pelo Morpheus e pelo Rocket. Por outro lado, Morpheus e Rocket também não eliminaram completamente os erros restantes, mesmo com melhor desempenho operacional.
+
+A métrica de melhor geração média também exige cautela. No Morpheus, o melhor indivíduo aparece, em média, nas primeiras gerações, com média de 1,25 no i3 e 1,27 no i5/full. No Rocket, esse comportamento é semelhante, com média de 1,39 no i3 e 1,31 no i5/full. Esse padrão pode indicar que soluções de alto \textit{fitness} já foram produzidas na população inicial, que os mecanismos de reparo tiveram forte impacto no início da execução ou que a população rapidamente atingiu uma região de estabilização. Sem detalhamento adicional dos registros, não é possível afirmar qual desses fatores foi determinante.
+
+No caso do Sunny, a média de melhor geração foi mais alta, com 20,16 no i3 e 20,92 no i5/full, além de maior permanência no ciclo evolutivo. No entanto, como o erro médio e o score final não superaram os de Morpheus e Rocket, o custo adicional de execução não se traduziu em vantagem final nas métricas disponíveis.
+
+A presença do Rocket torna mais clara a distinção entre número de gerações e custo de execução. Morpheus e Rocket executaram quantidades médias de gerações praticamente equivalentes, mas o Rocket apresentou latência e consumo de memória muito inferiores. Isso sugere que a diferença operacional entre eles não decorre apenas do critério de parada, mas também do custo por geração, da organização interna dos dados e da forma como população, \textit{fitness} e reparo são executados.

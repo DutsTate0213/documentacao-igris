@@ -1,0 +1,20 @@
+\section{Cenário B -- Desempenho no Ambiente i5/full}
+\label{sec:cenario-b-i5-full}
+
+No cenário i5/full, cada algoritmo também foi submetido a 9.000 requisições. Nesse ambiente, os três algoritmos apresentaram taxa de sucesso de 100,00\%, o que indica que todos conseguiram concluir todas as execuções registradas no benchmark.
+
+A latência média novamente favoreceu o Rocket. O algoritmo apresentou média de 640,26 ms, enquanto o Morpheus apresentou 5.044,99 ms e o Sunny apresentou 5.832,73 ms. Na comparação entre Morpheus e Sunny, a diferença representa uma latência média aproximadamente 15,61\% maior para o Sunny. Em comparação com o cenário i3, a vantagem relativa do Morpheus sobre o Sunny tornou-se ainda mais evidente, mas a presença do Rocket mostra uma terceira faixa de desempenho operacional, substancialmente inferior em tempo de resposta.
+
+O p95 também manteve o mesmo padrão. O Rocket registrou 777,92 ms, enquanto o Morpheus registrou 6.058,92 ms e o Sunny registrou 7.083,80 ms. Na comparação entre Morpheus e Sunny, isso representa uma diferença de aproximadamente 16,92\% em favor do Morpheus. Portanto, no cenário i5/full, o Rocket apresentou melhor comportamento nas execuções mais lentas, e o Morpheus também manteve vantagem sobre o Sunny.
+
+No consumo de memória, o Rocket utilizou em média 11,35 MB de RAM, com pico de 20,68 MB. O Morpheus utilizou em média 72,69 MB de RAM, com pico de 73,63 MB. O Sunny utilizou em média 778,60 MB de RAM, com pico de 1.098,75 MB. Embora o consumo médio do Sunny tenha sido menor no i5/full do que no i3, ele permaneceu muito superior ao consumo observado no Morpheus e no Rocket.
+
+A diferença de gerações também permaneceu estável. O Rocket executou, em média, 191,44 gerações, o Morpheus executou 191,41 gerações e o Sunny executou 945 gerações. O Morpheus e o Rocket registraram 8.980 ocorrências de parada antecipada, enquanto o Sunny novamente não registrou early stop. Esse comportamento reforça que os algoritmos seguem dinâmicas evolutivas distintas, com Morpheus e Rocket interrompendo a execução antes do limite máximo na maior parte das requisições.
+
+A parada antecipada no Morpheus e no Rocket indica que os algoritmos deixaram de executar antes do limite máximo de gerações na maior parte das requisições. Isso pode ocorrer quando não há melhoria significativa no \textit{fitness} durante uma determinada janela de gerações. Dessa forma, os algoritmos evitam continuar processando quando a população já se encontra estabilizada segundo o critério adotado.
+
+O Sunny, por outro lado, executou próximo ao limite máximo de gerações. Isso não significa necessariamente pior qualidade evolutiva, mas indica maior custo computacional para atingir uma solução com erro médio equivalente ao dos demais algoritmos. Como os três encerraram com erro médio igual a 3,00, o maior número de gerações do Sunny não resultou, nos dados analisados, em eliminação adicional de inconsistências.
+
+Quanto ao score, o Morpheus e o Rocket mantiveram o valor de -29.574, enquanto o Sunny manteve -29.640. A diferença novamente favorece Morpheus e Rocket, mas deve ser interpretada como vantagem pequena. O dado mais relevante do cenário i5/full é, portanto, a combinação entre menor latência, menor p95, menor consumo de memória e mesmo erro médio final observada no Rocket, seguida pelo desempenho operacional do Morpheus em relação ao Sunny.
+
+Diante dos resultados, o cenário i5/full confirma o comportamento observado no cenário i3. O Rocket apresentou o melhor desempenho operacional, o Morpheus permaneceu mais eficiente que o Sunny, e o Sunny consumiu mais memória e executou mais gerações sem obter vantagem final no erro médio.

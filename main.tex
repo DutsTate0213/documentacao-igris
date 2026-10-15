@@ -1,0 +1,233 @@
+% !TEX root = main.tex
+\PassOptionsToClass{chapter=TITLE,section=TITLE}{abntex2}
+\documentclass[
+    12pt,
+    oneside,
+    a4paper,
+    brazilian
+]{abntex2}
+
+% ============================================================
+% PACOTES
+% Cada bloco possui uma função operacional específica para o documento
+% ============================================================
+
+% --- Idioma e codificação de caracteres ---
+\usepackage[utf8]{inputenc}    % Define a codificação para leitura direta de caracteres acentuados
+\usepackage[T1]{fontenc}       % Garante a hifenização correta e mapeamento de fontes estendidas
+\usepackage{babel}             % Traduz rótulos e automatiza termos institucionais padrão
+
+% --- Fonte tipográfica ---
+\usepackage{mathptmx}          % Define a fonte Times New Roman com suporte completo a símbolos matemáticos
+
+% --- Margens e paginação ---
+\usepackage[left=3cm,top=3cm,right=2cm,bottom=2cm]{geometry} % Margens ABNT explícitas
+
+% --- Espaçamento e recuo ---
+\usepackage{indentfirst}       % Aplica recuo no parágrafo inicial de todas as seções acadêmicas
+\usepackage{ragged2e}          % Adicionado para suporte ao comando \justifying
+
+% --- Imagens e Elementos Visuais ---
+\usepackage{graphicx}          % Permite a inclusão de arquivos gráficos externos
+\usepackage{float}             % Introduz o especificador [H] para fixação rígida de elementos flutuantes
+\usepackage{caption}           % Customização avançada de rótulos e legendas
+\usepackage{subcaption}        % Suporte para subfiguras organizadas em blocos internos
+\usepackage{tikz}              % Geração de diagramas e fluxogramas vetoriais diretamente via código
+
+% --- Tabelas e Estruturas de Dados ---
+\usepackage{booktabs}          % Renderiza linhas horizontais padronizadas sem divisores verticais
+\usepackage{longtable}         % Suporte para tabelas extensas que necessitam de quebra de página
+\usepackage{array}             % Extensão para propriedades de formatação de colunas
+\usepackage{tabularx}          % Implementação de colunas dinâmicas baseadas na largura útil
+\usepackage{multirow}          % Permite a unificação vertical de células em tabelas
+\usepackage{needspace}         % Evita iniciar quadros curtos sem espaço suficiente na página
+
+% --- Orientação de Página ---
+\usepackage{pdflscape}         % Força a rotação de páginas específicas para visualização horizontal
+
+% --- Algoritmos e Pseudocódigo ---
+\usepackage{algorithm}         % Estrutura o ambiente flutuante para blocos de algoritmos
+\usepackage{algpseudocode}     % Fornece palavras-chave para a escrita de lógica estruturada
+
+% --- Exibição de Código-Fonte ---
+\usepackage{minted}            % Realce avançado de sintaxe para linguagens de programação (requer -shell-escape)
+
+% --- Matemática Avançada ---
+\usepackage{amsmath}           % Mecanismo padrão para formatação de fórmulas e equações complexas
+
+% --- Listas Customizadas ---
+\usepackage{enumitem}          % Ajuste fino de margens e marcadores em listas ordenadas e não ordenadas
+
+\usepackage[alf]{abntex2cite}  % Implementa o sistema de citações alfabéticas seguindo a regulamentação ABNT
+
+% --- Otimização Tipográfica ---
+\usepackage{microtype}         % Ajusta microespaçamentos para evitar quebras de linhas inadequadas
+
+% --- Elementos de Hipertexto ---
+\usepackage{hyperref}          % Converte marcações, sumário e citações em hiperlinks ativos no PDF
+
+% ============================================================
+% CONFIGURAÇÕES OPERACIONAIS E ESTILOS
+% ============================================================
+
+% Define o espaçamento padrão de 1,5 linhas para o corpo do texto
+\OnehalfSpacing
+
+% Estabelece a indentação padrão de 1,25cm para o início dos parágrafos
+\setlength{\parindent}{1.25cm}
+
+% Zera o espaçamento vertical incremental entre parágrafos distintos
+\setlength{\parskip}{0pt}
+
+% Tipos customizados de colunas com dimensões estáticas e alinhamento assistido
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% Créditos e notas de ilustrações/tabelas em tamanho menor e padrão único.
+\newcommand{\fonteautores}{%
+  \par\smallskip
+  {\footnotesize\raggedright Fonte: Os autores (2026).\par}%
+}
+\newcommand{\notaacademica}[1]{%
+  \par
+  {\footnotesize\raggedright Nota: #1\par}%
+}
+
+% Numeração automática dos quadros de requisitos.
+\newcounter{quadro}
+\setcounter{quadro}{1}
+\newcommand{\tituloquadro}[2]{%
+  \refstepcounter{quadro}%
+  \par\medskip\noindent Quadro \thequadro{} -- #2%
+  \label{#1}\par\smallskip
+}
+
+% Parametrização de legendas conforme diretrizes institucionais
+\captionsetup{
+    labelsep        = endash,        % Separação por travessão tradicional
+    font            = small,         % Redução dimensional do texto da legenda
+    justification   = justified,     % Texto justificado (ABNT)
+    singlelinecheck = false          % Desativa a centralização automática de linhas únicas
+}
+
+% Comportamento visual dos links internos e externos no arquivo PDF
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = black,              % Links estruturais permanecem em preto para impressão
+    citecolor  = black,              % Chamadas de referências configuradas em preto
+    urlcolor   = black               % Endereços eletrônicos permanecem em preto
+}
+\urlstyle{same}
+
+% Ajuste dos níveis hierárquicos de títulos gerenciados nativamente pela classe abntex2
+\renewcommand{\ABNTEXchapterfont}{\bfseries}
+\renewcommand{\ABNTEXchapterfontsize}{\large}
+\setboolean{ABNTEXupperchapter}{true}
+
+\renewcommand{\ABNTEXsectionfont}{\bfseries}
+\renewcommand{\ABNTEXsectionfontsize}{\normalsize}
+\setboolean{ABNTEXuppersection}{true}
+
+\renewcommand{\ABNTEXsubsectionfont}{\bfseries}
+\renewcommand{\ABNTEXsubsectionfontsize}{\normalsize}
+\setboolean{ABNTEXuppersubsection}{false}
+
+\renewcommand{\ABNTEXsubsubsectionfont}{\normalfont}
+\renewcommand{\ABNTEXsubsubsectionfontsize}{\normalsize}
+\setboolean{ABNTEXuppersubsubsection}{false}
+
+\renewcommand{\ABNTEXsubsubsubsectionfont}{\itshape}
+\renewcommand{\ABNTEXsubsubsubsectionfontsize}{\normalsize}
+\setboolean{ABNTEXuppersubsubsubsection}{false}
+
+% Ajuste da formatação do sumário (TOC) para refletir os mesmos pesos e estilos
+\renewcommand{\cftchapterfont}{\bfseries}
+\renewcommand{\cftchapterpagefont}{\normalfont\bfseries}
+
+\renewcommand{\cftsectionfont}{\bfseries}
+\renewcommand{\cftsectionpagefont}{\normalfont\bfseries}
+
+\renewcommand{\cftsubsectionfont}{\bfseries}
+\renewcommand{\cftsubsectionpagefont}{\normalfont\bfseries}
+
+\renewcommand{\cftsubsubsectionfont}{\normalfont}
+\renewcommand{\cftsubsubsectionpagefont}{\normalfont}
+
+\renewcommand{\cftparagraphfont}{\itshape}
+\renewcommand{\cftparagraphpagefont}{\normalfont\itshape}
+
+% ============================================================
+% ESTRUTURAÇÃO DO DOCUMENTO
+% ============================================================
+\begin{document}
+
+% --- Fase Pré-Textual ---
+% Elementos de identificação e triagem sem numeração visível na página
+\pretextual
+\pagestyle{empty}
+
+\input{pretextual/capa}
+\input{pretextual/folha_de_rosto}
+\input{pretextual/ficha_catalografica}
+\input{pretextual/folha_de_aprovacao}
+\input{pretextual/dedicatoria}
+\input{pretextual/agradecimentos}
+\input{pretextual/epigrafe}
+\input{pretextual/resumo}
+\input{pretextual/abstract}
+\cleardoublepage
+
+% Geração de Listas e Sumário
+\listoffigures*     % Compilação das ocorrências de figuras
+\cleardoublepage
+
+\listoftables*      % Compilação das ocorrências de tabelas
+\cleardoublepage
+
+\input{pretextual/siglas}
+\cleardoublepage
+
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*   % Compilação estrutural do sumário (com asterisco para não listar a si mesmo)
+\cleardoublepage
+
+% --- Fase Textual ---
+% Núcleo de desenvolvimento do trabalho com paginação visível em numeração arábica
+
+% --- Cabeçalho e Rodapé Customizados ---
+\makepagestyle{tccstyle}
+\makeevenhead{tccstyle}{}{}{}
+\makeoddhead{tccstyle}{}{}{}
+\makeevenfoot{tccstyle}{}{\thepage}{}
+\makeoddfoot{tccstyle}{}{\thepage}{}
+
+\let\oldtextual\textual
+\renewcommand{\textual}{
+  \oldtextual
+  \pagestyle{tccstyle}
+  \aliaspagestyle{chapter}{tccstyle}
+  \nouppercaseheads
+  \bookmarksetup{startatroot}
+}
+
+\textual
+
+% --- Capítulos ---
+\input{capitulos/capitulo_1_introducao/main}
+\input{capitulos/capitulo_2_fundamentacao/main}
+\input{capitulos/capitulo_3_metodologia/main}
+\input{capitulos/capitulo_4_modelagem/main}
+\input{capitulos/capitulo_5_implementacao/main}
+\input{capitulos/capitulo_6_integracao/main}
+\input{capitulos/capitulo_7_benchmark/main}
+\input{capitulos/capitulo_8_consideracoes/main}
+
+% --- Fase Pós-Textual ---
+% Elementos complementares ao texto, sem numeração de capítulo, mas indexados no sumário
+\postextual
+
+\bibliography{postextuais/referencias}
+
+\input{postextuais/apendice}
+
+\end{document}

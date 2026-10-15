@@ -1,0 +1,12 @@
+\section{Heurísticas e Meta-Heurísticas de Otimização}
+\label{sec:2.2}
+
+A complexidade dos problemas de calendarização universitária torna limitada a aplicação de métodos exatos em cenários reais. Embora essas abordagens possam ser adequadas para instâncias menores ou altamente controladas, sua utilização tende a se tornar inviável quando há grande quantidade de turmas, docentes, disciplinas, disponibilidades e restrições a serem consideradas simultaneamente \cite{abdipoor2023, badoni2023}.
+
+Nesse contexto, técnicas de busca e otimização oferecem alternativas capazes de apoiar a resolução de problemas complexos. Entre essas técnicas, destacam-se as heurísticas e meta-heurísticas, que não têm como objetivo garantir sempre a solução ótima global, mas encontrar soluções satisfatórias em tempo computacional aceitável. Esse equilíbrio entre qualidade da solução e custo de processamento é especialmente relevante em espaços de busca extensos, nos quais a avaliação exaustiva de todas as possibilidades se torna impraticável \cite{stegherr2022}.
+
+As heurísticas utilizam regras, critérios ou aproximações específicas para orientar a busca por uma solução. Já as meta-heurísticas apresentam maior nível de generalidade, podendo ser aplicadas a diferentes problemas de otimização. Essas técnicas funcionam como estratégias de exploração do espaço de soluções, permitindo avaliar alternativas de maneira mais eficiente do que uma busca exaustiva \cite{houssein2024}.
+
+Entre as meta-heurísticas utilizadas em problemas de otimização, destaca-se a Computação Evolutiva. Segundo \citeonline{eiben2015}, essa abordagem é inspirada em princípios da evolução natural, como seleção, recombinação e mutação. Sua principal característica é trabalhar com um conjunto de soluções candidatas, em vez de analisar apenas uma solução por vez. Essa dinâmica permite explorar diferentes possibilidades simultaneamente, aumentando a capacidade de encontrar soluções adequadas em problemas complexos.
+
+No contexto da geração de grades horárias, essa característica é especialmente relevante. Como existem muitas combinações possíveis de alocação, uma abordagem baseada em múltiplas soluções permite comparar diferentes organizações da grade e aprimorá-las progressivamente. Por esse motivo, os Algoritmos Genéticos, pertencentes ao campo da Computação Evolutiva, mostram-se adequados ao tipo de problema tratado neste trabalho \cite{abdipoor2023, badoni2023}.

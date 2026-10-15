@@ -1,0 +1,91 @@
+\section{Sobre o Benchmark}
+\label{sec:sobre-o-benchmark}
+
+Para avaliar os algoritmos Morpheus, Sunny e Rocket, foi utilizado um benchmark progressivo composto por dois cenários principais. O primeiro cenário é identificado como i3, enquanto o segundo é identificado como i5/full. Em cada cenário, os três algoritmos foram executados repetidamente, permitindo observar diferenças de desempenho, estabilidade e consumo de recursos.
+
+Os cenários i3 e i5/full representam presets distintos de capacidade computacional. O cenário i3 foi utilizado como ambiente de capacidade reduzida, simulando uma configuração com menor disponibilidade de processamento. Nos scripts de execução analisados, esse preset foi operacionalizado por meio de limitação de CPU nos containers, com o comando \texttt{docker update --cpus 4} aplicado aos serviços avaliados antes da execução do benchmark. O cenário i5/full, por sua vez, foi utilizado como ambiente de capacidade total, no qual os containers foram executados sem limite explícito de CPU, indicado nos scripts pela restauração do parâmetro para \texttt{--cpus 0}. Assim, a comparação entre i3 e i5/full também permite observar como cada algoritmo responde à ampliação de capacidade de processamento disponível.
+
+A escolha desses dois cenários teve finalidade metodológica específica. O cenário i3 foi utilizado para testar o comportamento dos algoritmos sob restrição de processamento, isto é, em uma condição mais próxima de implantação econômica ou de infraestrutura compartilhada. O cenário i5/full foi utilizado como referência de capacidade ampliada, permitindo observar se a remoção do limite de CPU reduziria proporcionalmente a latência ou se os algoritmos permaneceriam limitados por outros fatores, como custo da função \textit{fitness}, estruturas de dados, sincronização, alocação de memória ou critérios de parada. A hipótese técnica subjacente era que implementações mais eficientes deveriam manter estabilidade no ambiente restrito e, ao mesmo tempo, converter parte da capacidade adicional do ambiente i5/full em menor tempo de resposta. Dessa forma, a comparação não mede apenas qual algoritmo é mais rápido, mas também a sensibilidade de cada implementação à disponibilidade de recursos computacionais.
+
+Quanto à memória RAM, os relatórios registram o consumo por meio da telemetria do \texttt{docker stats} durante cada requisição. Os artefatos de execução não apresentam um limite explícito de memória por container, como \texttt{docker update --memory}, \texttt{mem\_limit} ou configuração equivalente no \texttt{docker-compose}. Dessa forma, a RAM deve ser interpretada como capacidade disponível do ambiente monitorado, e não como cota fixa documentada por serviço. Pelos percentuais de memória reportados nos CSVs, a capacidade total observada pelo Docker ficou próxima de 8 GB nos testes analisados. Portanto, o preset i3 deve ser descrito como cenário de processamento reduzido, com 4 CPUs disponíveis para os containers avaliados, enquanto o preset i5/full deve ser descrito como cenário de processamento total, sem limitação explícita de CPU e com a memória disponível do ambiente Docker monitorado.
+
+O volume de 9.000 requisições por algoritmo em cada cenário foi adotado para reduzir a influência de execuções isoladas e permitir uma leitura mais estável das métricas agregadas. Em algoritmos genéticos, a presença de componentes estocásticos pode produzir variações entre execuções mesmo quando o \textit{payload} e os parâmetros permanecem equivalentes. Um conjunto de 9.000 amostras aumenta a robustez descritiva da média e, principalmente, torna mais informativo o percentil 95: nesse caso, a cauda superior da distribuição ainda contém aproximadamente 450 observações, evitando que o p95 seja definido por poucos casos extremos. Além disso, o volume escolhido preserva viabilidade prática de execução, pois permite repetir o experimento para três algoritmos, dois cenários e múltiplas configurações paramétricas sem tornar o tempo total do benchmark incompatível com a coleta operacional.
+
+Os parâmetros avaliados no benchmark foram: taxa de \textit{crossover}, tamanho da população, número de gerações, taxa de elitismo, pontuação base, penalidade de conflito, bônus de diversidade, tamanho do torneio e taxa de mutação. Esses parâmetros foram escolhidos porque influenciam diretamente o comportamento de um algoritmo genético, afetando a forma como a população evolui, como os indivíduos são selecionados, como novas soluções são geradas e como conflitos são penalizados.
+
+As métricas utilizadas na avaliação foram: latência média, percentil 95 da latência, uso médio de CPU, pico de CPU, uso médio de memória RAM, pico de memória RAM, custo composto tempo \(\times\) memória, número médio de gerações executadas, melhor geração média, ocorrência de parada antecipada, score final e erro médio. A partir dessas métricas, torna-se possível analisar tanto o custo operacional dos algoritmos quanto a qualidade relativa das soluções geradas.
+
+A latência média indica o tempo médio de resposta das execuções. O percentil 95, identificado como p95, representa o tempo abaixo do qual se encontram 95\% das execuções, sendo útil para observar o comportamento das execuções mais lentas. O uso de RAM e CPU permite avaliar o custo computacional das implementações. Já as métricas de gerações, score, erro médio e parada antecipada permitem analisar o comportamento evolutivo dos algoritmos.
+
+Formalmente, para um conjunto de \(n\) execuções válidas de um algoritmo em determinado cenário, seja \(L_i\) a latência da \(i\)-ésima requisição, medida em milissegundos. A latência média é dada por:
+
+\begin{equation}
+L_{\text{média}} = \frac{1}{n}\sum_{i=1}^{n} L_i.
+\end{equation}
+
+Para o cálculo do percentil 95, as latências são ordenadas de forma crescente, produzindo a sequência \(L_{(1)} \leq L_{(2)} \leq \cdots \leq L_{(n)}\). O p95 é então aproximado pelo valor na posição \(k = \lceil 0{,}95n \rceil\), isto é:
+
+\begin{equation}
+p95 = L_{(k)}, \quad \text{com } k = \lceil 0{,}95n \rceil.
+\end{equation}
+
+Assim, quando \(n = 9.000\), o p95 corresponde aproximadamente à 8.550ª observação ordenada, indicando o limite abaixo do qual se situam 95\% das requisições medidas. Essa métrica complementa a média porque reduz o risco de interpretação baseada apenas no comportamento central da distribuição, evidenciando também a experiência das execuções mais lentas.
+
+O uso médio de memória RAM segue a mesma lógica de agregação. Seja \(M_i\) o consumo de memória observado durante a \(i\)-ésima execução, em megabytes. A RAM média é calculada por:
+
+\begin{equation}
+\text{RAM}_{\text{média}} = \frac{1}{n}\sum_{i=1}^{n} M_i.
+\end{equation}
+
+O pico de memória, por sua vez, corresponde ao maior valor observado no conjunto de execuções:
+
+\begin{equation}
+\text{RAM}_{\text{pico}} = \max(M_1, M_2, \ldots, M_n).
+\end{equation}
+
+De maneira análoga, se \(C_i\) representa o uso de CPU observado na \(i\)-ésima execução, o uso médio e o pico de CPU são calculados por:
+
+\begin{align}
+\text{CPU}_{\text{média}} &= \frac{1}{n}\sum_{i=1}^{n} C_i,\\
+\text{CPU}_{\text{pico}} &= \max(C_1, C_2, \ldots, C_n).
+\end{align}
+
+Na telemetria do \texttt{docker stats}, o percentual de CPU deve ser interpretado como uso agregado por núcleo lógico. Assim, 100\% de CPU equivale aproximadamente ao uso integral de um núcleo lógico durante a janela de amostragem. Em ambientes com múltiplos núcleos, valores acima de 100\% podem ocorrer quando o container utiliza mais de um núcleo simultaneamente. Portanto, essa métrica não representa necessariamente a ocupação de 100\% de todo o host físico, mas sim o consumo agregado observado para o container monitorado.
+
+Para as métricas evolutivas, se \(G_i\) representa o número de gerações executadas na \(i\)-ésima requisição, então:
+
+\begin{equation}
+G_{\text{média}} = \frac{1}{n}\sum_{i=1}^{n} G_i.
+\end{equation}
+
+A taxa de sucesso também é calculada por proporção simples:
+
+\begin{equation}
+\text{Sucesso} = \frac{n_{\text{sucesso}}}{n_{\text{total}}}\times 100,
+\end{equation}
+
+em que \(n_{\text{sucesso}}\) é o número de requisições concluídas corretamente e \(n_{\text{total}}\) é o número total de requisições executadas no cenário.
+
+Quando o benchmark utiliza o custo composto tempo \(\times\) memória, a métrica pode ser expressa como o produto entre latência média e RAM média:
+
+\begin{equation}
+C_{tm} = L_{\text{média}}\times \text{RAM}_{\text{média}}.
+\end{equation}
+
+Esse custo composto não substitui as métricas individuais, mas ajuda a identificar situações em que um algoritmo é simultaneamente lento e intensivo em memória. Duas implementações com latências semelhantes, por exemplo, podem ter custos operacionais distintos se uma delas exigir muito mais RAM para produzir resultado equivalente.
+
+O score representa a pontuação associada à função \textit{fitness}. Como a função utiliza penalidades para conflitos e inconsistências, valores menos negativos indicam melhor avaliação relativa. O erro médio representa a quantidade média de inconsistências restantes nas soluções finais. Entretanto, os relatórios analisados não detalham completamente a composição desse erro para todos os algoritmos, ou seja, não permitem afirmar, de forma homogênea, se ele corresponde a conflitos de professor, conflitos de turma, demandas não alocadas ou combinação desses fatores.
+
+De forma geral, a função de score pode ser descrita como uma combinação entre uma pontuação base, eventuais bônus e penalidades aplicadas às violações de restrições. Se \(B\) representa a pontuação base da solução, \(D\) representa o bônus de diversidade, \(v_j\) representa a quantidade de violações do tipo \(j\) e \(\lambda_j\) representa o peso ou a penalidade associada a esse tipo de violação, então o score pode ser representado por:
+
+\begin{equation}
+\text{Score} = B + D - \sum_{j=1}^{m}\lambda_j v_j.
+\end{equation}
+
+Nessa formulação, \(m\) é o número de categorias de restrição consideradas pela função \textit{fitness}. Quanto maior o número de violações ou maior o peso associado a elas, menor tende a ser o score final. Por isso, no benchmark, scores menos negativos indicam soluções relativamente melhores segundo a função \textit{fitness} implementada, embora não garantam, isoladamente, validade acadêmica completa da grade. O erro médio pode ser expresso por:
+
+\begin{equation}
+E_{\text{média}} = \frac{1}{n}\sum_{i=1}^{n} E_i,
+\end{equation}
+
+em que \(E_i\) representa o número de inconsistências remanescentes na solução final da \(i\)-ésima execução. Essa métrica aproxima a qualidade final das soluções, mas sua interpretação permanece limitada quando os relatórios não discriminam a natureza de cada inconsistência.

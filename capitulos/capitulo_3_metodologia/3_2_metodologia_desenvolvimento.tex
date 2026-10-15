@@ -1,0 +1,8 @@
+﻿\section{Metodologia de Desenvolvimento}
+\label{sec:3.2}
+
+O desenvolvimento do IGRIS adotou o processo iterativo e incremental, no qual o produto é construído em ciclos sucessivos de planejamento, implementação e validação. Segundo \citeonline[p.~47]{sommerville2016}, essa abordagem é superior ao modelo cascata para projetos que envolvem requisitos em evolução ou componentes de alta complexidade técnica, como algoritmos de otimização, pois permite a validação contínua de cada incremento antes de avançar para o seguinte.
+
+Cada ciclo de desenvolvimento foi organizado segundo o Official Kanban Guide \cite{kanbanuniversity2020}, que estrutura o fluxo de trabalho em colunas visuais representando estados de execução (a fazer, em progresso, concluído), com limitação explícita do trabalho em progresso (\textit{Work-in-Progress Limit}). Esse método reduz o acúmulo de tarefas simultâneas e aumenta a previsibilidade das entregas, favorecendo o controle do andamento em um projeto com múltiplos componentes interdependentes backend, microsserviços e frontend.
+
+A integração entre os componentes foi validada de forma incremental: o Backend Core (Igris) foi desenvolvido e estabilizado primeiro, estabelecendo o contrato de API; em seguida, os microsserviços Sunny e Morpheus foram integrados sequencialmente ao ecossistema Docker; por fim, o Rocket foi incorporado como terceira implementação do algoritmo genético para fins de benchmark comparativo.

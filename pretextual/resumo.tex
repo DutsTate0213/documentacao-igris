@@ -1,0 +1,16 @@
+﻿% RESUMO (elemento obrigatório, sem recuo de parágrafo)
+\newpage
+\begin{center}
+  \textbf{RESUMO}
+\end{center}
+
+\vspace{1cm}
+
+% ABNT: resumo sem recuo de parágrafo
+\setlength{\parindent}{0pt}
+A alocação de horários acadêmicos em Instituições de Ensino Superior exige a combinação de turmas, disciplinas, professores, turnos e disponibilidades, o que torna o processo complexo, repetitivo e sujeito a conflitos quando realizado manualmente. Este trabalho apresenta o IGRIS, um sistema inteligente para geração automatizada de grades horárias universitárias com uso de Algoritmos Genéticos, com o objetivo de apoiar a gestão acadêmica e reduzir inconsistências no processo de alocação semestral. A pesquisa caracteriza-se como aplicada, de abordagem quantitativa, com procedimentos bibliográficos e experimentais, e adota desenvolvimento iterativo e incremental apoiado por ciclos de planejamento, implementação, integração e validação. O sistema utiliza arquitetura de monolito modular com adaptadores de microsserviços, integrando o núcleo da aplicação em Java/Spring Boot a três serviços de otimização: Sunny, em Java/Spring Boot, Morpheus, em Python/Flask, e Rocket, em Go. O estudo comparou as implementações por meio de benchmark controlado, considerando latência, consumo de memória RAM e qualidade da solução gerada. Os resultados demonstram que as três abordagens produzem soluções viáveis para o problema de timetabling universitário, com erro médio final equivalente entre os algoritmos. Entretanto, a implementação Rocket apresentou melhor desempenho operacional, com menor latência média e menor consumo de memória nos ambientes avaliados. Conclui-se que o IGRIS constitui uma ferramenta tecnicamente viável de apoio à decisão na gestão acadêmica, pois automatiza a geração de grades, reduz o esforço manual e oferece uma arquitetura extensível para futuras estratégias de otimização.
+\vspace{0.5cm}
+
+\noindent\textbf{Palavras-chave:} algoritmos genéticos; timetabling universitário; otimização combinatória; monolito modular; microsserviços; benchmark.
+% Restaura o recuo padrão para o restante do documento
+\setlength{\parindent}{1.25cm}

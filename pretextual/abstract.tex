@@ -1,0 +1,15 @@
+﻿% ABSTRACT (resumo em inglês, elemento obrigatório)
+\newpage
+\begin{center}
+  {\bfseries ABSTRACT}
+\end{center}
+\vspace{1cm}
+
+\setlength{\parindent}{0pt}
+
+The allocation of academic timetables in Higher Education Institutions requires the combination of classes, courses, instructors, schedules, and availability constraints, making the process complex, repetitive, and prone to conflicts when performed manually. This work presents IGRIS, an intelligent system for the automated generation of university timetables using Genetic Algorithms, aiming to support academic management and reduce inconsistencies in the semester scheduling process. The research is characterized as applied, with a quantitative approach, employing bibliographic and experimental procedures, and adopting an iterative and incremental development process supported by cycles of planning, implementation, integration, and validation. The system employs a modular monolith architecture with microservice adapters, integrating the application core in Java/Spring Boot with three optimization services: Sunny, developed in Java/Spring Boot; Morpheus, developed in Python/Flask; and Rocket, developed in Go. The study compared these implementations through a controlled benchmark, considering latency, RAM consumption, and the quality of the generated solution. The results demonstrate that all three approaches produce feasible solutions to the university timetabling problem, with equivalent final average error among the algorithms. However, the Rocket implementation achieved the best operational performance, presenting the lowest average latency and the lowest memory consumption across the evaluated environments. It is concluded that IGRIS constitutes a technically viable decision-support tool for academic management, as it automates timetable generation, reduces manual effort, and provides an extensible architecture for future optimization strategies.
+
+\vspace{0.5cm}
+\noindent\textbf{Keywords:} genetic algorithms; university timetabling; combinatorial optimization; modular monolith; microservices; benchmark.
+
+\setlength{\parindent}{1.25cm}
